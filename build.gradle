@@ -1,0 +1,40 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceCompatibility = 1.8
+version = '0.0.1'
+
+ext.launcherMain = 'org.kneelawk.unitcirclething.UnitCircleThingLauncher'
+
+sourceSets {
+	launcher {
+		java {
+			srcDir 'src/launcher/java'
+			srcDir 'CPControl/src/main/java'
+		}
+	}
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'io.humble:humble-video-all:0.2.1'
+}
+
+// builds the launch jar
+task launcherJar(type: Jar, dependsOn: [jar, launcherClasses]) {
+	manifest { attributes 'Main-Class': launcherMain }
+	baseName "${project.name}-all"
+	from(configurations.compile) { into 'libs' }
+	from('dependencies/natives') { into 'natives' }
+	from(jar.outputs.files) { into 'app' }
+	from(sourceSets.launcher.output)
+	from('LICENSE')
+
+	group 'Build'
+	description 'Creates a jar with all dependencies included.'
+}
+
+assemble.dependsOn launcherJar
